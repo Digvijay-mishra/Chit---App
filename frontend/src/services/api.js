@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Use relative path for API calls - this ensures same protocol as the page
-// The /api prefix will be handled by the ingress to route to backend
-const API_BASE = '/api';
+// Get backend URL from environment variable
+const API_BASE = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 console.log('=== API Configuration ===');
-console.log('Using relative API path:', API_BASE);
+console.log('API Base URL:', API_BASE);
+console.log('Environment:', process.env.NODE_ENV);
 console.log('========================');
 
 const api = axios.create({
