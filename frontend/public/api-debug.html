@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Debug Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>BC Management API Debug</h1>
+    
+    <h2>Test 1: Get All Groups</h2>
+    <button onclick="testGetGroups()">Test GET Groups</button>
+    <pre id="result1"></pre>
+
+    <h2>Test 2: Create Group</h2>
+    <button onclick="testCreateGroup()">Test POST Create Group</button>
+    <pre id="result2"></pre>
+
+    <h2>Test 3: Get Dashboard Stats</h2>
+    <button onclick="testDashboard()">Test GET Dashboard Stats</button>
+    <pre id="result3"></pre>
+
+    <script>
+        const API_URL = 'https://chitwise.preview.emergentagent.com/api';
+
+        async function testGetGroups() {
+            const result = document.getElementById('result1');
+            try {
+                result.textContent = 'Loading...';
+                const response = await fetch(`${API_URL}/groups/`);
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP ${response.status}: ${JSON.stringify(errorData)}`);
+                }
+                
+                const data = await response.json();
+                result.className = 'success';
+                result.textContent = `SUCCESS!\nFound ${data.length} groups\n\n` + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = 'ERROR: ' + error.message + '\n\n' + error.stack;
+            }
+        }
+
+        async function testCreateGroup() {
+            const result = document.getElementById('result2');
+            try {
+                result.textContent = 'Creating group...';
+                const response = await fetch(`${API_URL}/groups/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: 'Debug Test Group ' + new Date().getTime(),
+                        totalChitAmount: 100000,
+                        maxMembers: 25,
+                        description: 'Created from debug page'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                result.className = 'success';
+                result.textContent = 'SUCCESS!\nGroup created:\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = 'ERROR: ' + error.message + '\n\nFull error:\n' + JSON.stringify(error, null, 2);
+            }
+        }
+
+        async function testDashboard() {
+            const result = document.getElementById('result3');
+            try {
+                result.textContent = 'Loading stats...';
+                const response = await fetch(`${API_URL}/dashboard/stats/`);
+                const data = await response.json();
+                result.className = 'success';
+                result.textContent = 'SUCCESS!\n\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = 'ERROR: ' + error.message + '\n\n' + error.stack;
+            }
+        }
+
+        // Auto-run tests on load
+        window.onload = () => {
+            console.log('Debug page loaded');
+            console.log('API URL:', API_URL);
+        };
+    </script>
+</body>
+</html>
